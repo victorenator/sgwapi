@@ -1,5 +1,6 @@
 (function() {
 
+var _ = require('underscore');
 var request = require('request');
 
 var SGAPI = 'https://sendgrid.com/api';
@@ -304,14 +305,15 @@ NewsletterLists.prototype = {
 /**
  * Create a Recipient List
  * @param {String} list The name of the list to create
- * @param {String} [name] Specify the column name for the 'name' associated with email addresses 
+ * @param {String} [name] Specify the column name for the 'name' associated with email addresses
+ * @param {Object} [columns] Specify additional column names
  * @param {Function} cb
  */
-NewsletterLists.prototype.add = function(list, name, cb) {
-    this.sg.request('add', 'newsletter/lists', {
+NewsletterLists.prototype.add = function(list, name, columns, cb) {
+    this.sg.request('add', 'newsletter/lists', _.defaults({
         list: list,
         name: name
-    }, cb);
+    }, columns), cb);
 };
 
 /**

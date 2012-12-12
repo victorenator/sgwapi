@@ -11,7 +11,8 @@
     },
     
     "dependencies": {
-        "request": "2.12"
+        "request": "2.12",
+        "underscore": "1.4"
     },
     
     "keywords": ["sendgrid", "email", "newsletter"],
