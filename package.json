@@ -1,0 +1,29 @@
+{
+    "name": "sgwapi",
+    "version": "0.1.0",
+    
+    "description": "Sendgrid Web API",
+    "homepage": "https://github/victorenator/sgwapi",
+    
+    "author": {
+        "name": "Viktar Vauchkevich",
+        "email": "victorenator@gmail.com"
+    },
+    
+    "dependencies": {
+        "request": "2.12"
+    },
+    
+    "keywords": ["sendgrid", "email", "newsletter"],
+    
+    "main": "./sendgrid",
+
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/victorenator/sgwapi.git"
+    },
+
+    "engines": {
+        "nodejs": ">= 0.6"
+    }
+}
