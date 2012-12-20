@@ -412,11 +412,9 @@ NewsletterListsEmail.prototype.add = function(list, data, cb) {
     assert.ok(list);
     assert.ok(data);
     
-    var sdata = JSON.stringify(data);
-    sdata = sdata.substr(1, sdata.length - 2);
     this.sg.request('add', 'newsletter/lists/email', {
         list: list,
-        data: sdata
+        data: data.map(JSON.stringify)
     }, cb);
 };
 
