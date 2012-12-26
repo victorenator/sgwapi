@@ -52,6 +52,7 @@ Sendgrid.prototype.request = function(action, path, form, cb) {
     assert.ok(action);
     assert.ok(path);
     assert.ok(cb);
+    assert.equal(typeof cb, 'function');
     
     request(SGAPI + '/' + path + '/' + action + '.json', {
         method: 'POST',
