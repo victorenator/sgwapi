@@ -1,6 +1,6 @@
 {
     "name": "sgwapi",
-    "version": "0.3.0",
+    "version": "0.3.1",
     
     "description": "Sendgrid Web API",
     "homepage": "https://github/victorenator/sgwapi",
@@ -11,9 +11,10 @@
     },
     
     "dependencies": {
+        "moment": "1.7",
         "request": "2.12",
         "underscore": "1.4"
-    },
+    },   
     
     "keywords": ["sendgrid", "email", "newsletter"],
     

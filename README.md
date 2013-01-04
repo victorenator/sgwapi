@@ -10,8 +10,9 @@ npm install sgwapi
 
 
 ## Modules ##
-- mail
-- newsletter
+- Invalid Emails
+- Mail
+- Newsletter API
 
 
 ## Usage ##

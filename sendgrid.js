@@ -27,6 +27,16 @@ function Sendgrid(user, key, options) {
 }
 
 Sendgrid.prototype = {
+    
+    /**
+     * Gets Invalid Emails API
+     * @returns {InvalidEmails}
+     */
+    get invalidemails() {
+        if (!this._invalidemails) this._invalidemails = new InvalidEmails(this);
+        return this._invalidemails;
+    },
+    
     /**
      * Gets Mail API
      * @returns {Mail}
@@ -49,10 +59,10 @@ Sendgrid.prototype = {
 Sendgrid.prototype.request = function(action, path, form, cb) {
     this.debug && console.log('sendgrid api', action, path, form);
     
-    assert.ok(action);
-    assert.ok(path);
-    assert.ok(cb);
-    assert.equal(typeof cb, 'function');
+    assert.ok(action, 'Action is required');
+    assert.ok(path, 'Path is required');
+    assert.ok(cb, 'Callback is required');
+    assert.equal(typeof cb, 'function', 'Callback must be function');
     
     request(SGAPI + '/' + path + '/' + action + '.json', {
         method: 'POST',
@@ -65,6 +75,46 @@ Sendgrid.prototype.request = function(action, path, form, cb) {
         else cb(err, body);
     })._json = true;
     
+};
+
+/**
+ * This endpoint allows you to retrieve and delete entries in the Invalid Emails list.
+ * @param {Sendgrid} sg 
+ * @returns {InvalidEmails}
+ */
+function InvalidEmails(sg) {
+    this.sg = sg;
+}
+
+/**
+ * Retrieve a list of invalid emails with addresses and response codes, optionally with dates.
+ * @param {Object} options
+ * @param {Date} [options.date] Retrieve the timestamp of the invalid email records.
+ * @param {Number} [options.days] Number of days in the past for which to retrieve invalid emails (includes today).
+ * @param {Date} [options.start_date] The start of the date range for which to retrieve invalid emails.
+ * @param {Date} [options.end_date] The end of the date range for which to retrieve invalid emails.
+ * @param {Number} [options.limit] Optional field to limit the number of results returned.
+ * @param {Number} [options.offset] Optional beginning point in the list to retrieve from.
+ * @param {String} [options.email] Optional email addresses to search for.
+ * @param {Function} cb
+ * @returns {undefined}
+ */
+InvalidEmails.prototype.get = function(options, cb) {
+    options = _.extend({}, options);
+    if (options.start_date) options.start_date = moment(options.start_date).format('YYYY-MM-DD');
+    if (options.end_date) options.end_date = moment(options.end_date).format('YYYY-MM-DD');
+    this.sg.request('get', 'invalidemails', options, cb);
+};
+
+/**
+ * Delete an address from the Invalid Email list.
+ * @param {String} email Email Invalid Email address to remove
+ * @param {Function} cb
+ * @returns {undefined}
+ */
+InvalidEmails.prototype.delete = function(email, cb) {
+    assert.ok(email, 'email is required');
+    this.sg.request('delete', 'invalidemails', {email: email}, cb);
 };
 
 /**
