@@ -20,5 +20,11 @@ sendgrid.newsletter.list(null, function(error, list) {
 //});
 
 sendgrid.invalidemails.get({}, function(error, emails) {
-    console.log('newsletter.invalidemails.get', error, emails);
+    console.log('invalidemails.get', error, emails);
 });
+
+sendgrid.bounces.get({}, function(error, emails) {
+    console.log('bounces.get', error, emails);
+});
+
+

@@ -2,6 +2,7 @@
 
 var _ = require('underscore');
 var assert = require('assert');
+var moment = require('moment');
 var request = require('request');
 
 var SGAPI = 'https://sendgrid.com/api';
@@ -9,6 +10,7 @@ var SGAPI = 'https://sendgrid.com/api';
 /**
  * @public
  * Sendgrid API
+ * @constructor
  * @param {String} user API user
  * @param {String} key API key
  * @param {Object} options Options
@@ -27,6 +29,15 @@ function Sendgrid(user, key, options) {
 }
 
 Sendgrid.prototype = {
+    
+    /**
+     * Gets Bounces API
+     * @returns {Bounces}
+     */
+    get bounces() {
+        if (!this._bounces) this._bounces = new Bounces(this);
+        return this._bounces;
+    },
     
     /**
      * Gets Invalid Emails API
@@ -78,7 +89,73 @@ Sendgrid.prototype.request = function(action, path, form, cb) {
 };
 
 /**
+ * This endpoint allows you to retrieve and delete entries in the Bounces list.
+ * @constructor
+ * @param {Sendgrid} sg
+ * @returns {Bounces}
+ */
+function Bounces(sg) {
+    this.sg = sg;
+}
+
+/**
+ * Retrieve a list of bounces with addresses and response codes, optionally with dates.
+ * @param {Object} options
+ * @param {Boolean} [options.date] Retrieve the timestamp of the bounce records.
+ * @param {Number} [options.days] Number of days in the past for which to retrieve bounces (includes today).
+ * @param {Date} [options.start_date] The start of the date range for which to retrieve bounces.
+ * @param {Date} [options.end_date] The end of the date range for which to retrieve bounces.
+ * @param {Number} [options.limit] Optional field to limit the number of results returned.
+ * @param {Number} [options.offset] Optional beginning point in the list to retrieve from.
+ * @param {String} [options.type] Choose the type of bounce to search for (hard or soft).
+ * @param {String} [options.email] Optional email addresses to search for.
+ * @param {Function} cb
+ * @returns {undefined}
+ */
+Bounces.prototype.get = function(options, cb) {
+    options = _.extend({}, options);
+    if (options.date) options.date = 1;
+    if (options.start_date) options.start_date = moment(options.start_date).format('YYYY-MM-DD');
+    if (options.end_date) options.end_date = moment(options.end_date).format('YYYY-MM-DD');
+    this.sg.request('get', 'bounces', options, cb);
+};
+
+/**
+ * Delete an address from the Bounce list. Please note that if no parameters are specified the ENTIRE list will be deleted.
+ * @param {Object} [options]
+ * @param {Date} [options.start_date] Optional date to start deleting from.
+ * @param {Date} [options.end_date] Optional date to end deleting from.
+ * @param {String} [options.type] Choose the type of bounce to be removed (hard or soft).
+ * @param {String} [options.email] Email bounce address to remove.
+ * @param {Function} cb
+ * @returns {undefined}
+ */
+Bounces.prototype.delete = function(options, cb) {
+    options = _.extend({}, options);
+    if (options.start_date) options.start_date = moment(options.start_date).format('YYYY-MM-DD');
+    if (options.end_date) options.end_date = moment(options.end_date).format('YYYY-MM-DD');
+    this.sg.request('delete', 'bounces', options, cb);
+};
+
+/**
+ * 
+ * @param {Object} [options]
+ * @param {Date} [options.start_date] Optional date to start counting from.
+ * @param {Date} [options.end_date] Optional date to end counting from.
+ * @param {String} [options.type] Choose the type of bounce to be removed (hard or soft).
+ * @param {type} cb
+ * @returns {undefined}
+ */
+Bounces.prototype.count = function(options, cb) {
+    options = _.extend({}, options);
+    if (options.start_date) options.start_date = moment(options.start_date).format('YYYY-MM-DD');
+    if (options.end_date) options.end_date = moment(options.end_date).format('YYYY-MM-DD');
+    this.sg.request('count', 'bounces', options, cb);
+};
+
+/**
  * This endpoint allows you to retrieve and delete entries in the Invalid Emails list.
+ * @constructor
  * @param {Sendgrid} sg 
  * @returns {InvalidEmails}
  */
@@ -89,7 +166,7 @@ function InvalidEmails(sg) {
 /**
  * Retrieve a list of invalid emails with addresses and response codes, optionally with dates.
  * @param {Object} options
- * @param {Date} [options.date] Retrieve the timestamp of the invalid email records.
+ * @param {Boolean} [options.date] Retrieve the timestamp of the invalid email records.
  * @param {Number} [options.days] Number of days in the past for which to retrieve invalid emails (includes today).
  * @param {Date} [options.start_date] The start of the date range for which to retrieve invalid emails.
  * @param {Date} [options.end_date] The end of the date range for which to retrieve invalid emails.
@@ -101,6 +178,7 @@ function InvalidEmails(sg) {
  */
 InvalidEmails.prototype.get = function(options, cb) {
     options = _.extend({}, options);
+    if (options.date) options.date = 1;
     if (options.start_date) options.start_date = moment(options.start_date).format('YYYY-MM-DD');
     if (options.end_date) options.end_date = moment(options.end_date).format('YYYY-MM-DD');
     this.sg.request('get', 'invalidemails', options, cb);
@@ -120,6 +198,7 @@ InvalidEmails.prototype.delete = function(email, cb) {
 /**
  * @private
  * Sendgrid Mail API
+ * @constructor
  * @param {Sendgrid} sg 
  * @returns {Mail}
  */
@@ -164,6 +243,7 @@ Mail.prototype.send = function(to, toname, xsmtpapi, from, fromname, subject, te
 /**
  * @private
  * Sendgrid Newsletter API
+ * @constructor
  * @param {Sendgrid} sg
  * @returns {Newsletter}
  */
@@ -307,6 +387,7 @@ Newsletter.prototype.list = function(name, cb) {
 
 /**
  * Newsletter Category API
+ * @constructor
  * @param {Sendgrid} sg
  * @returns {NewsletterCategory}
  */
@@ -371,6 +452,7 @@ NewsletterCategory.prototype.remove = function(name, category, cb) {
 /**
  * @private
  * Newsletter Lists API
+ * @constructor
  * @param {Sendgrid} sg
  * @returns {NewsletterLists}
  */
@@ -446,6 +528,7 @@ NewsletterLists.prototype.get = function(list, cb) {
 /**
  * @private
  * Newsletter Lists Email API
+ * @constructor
  * @param {Sendgrid} sg
  * @returns {NewsletterListsEmail}
  */
@@ -505,6 +588,7 @@ NewsletterListsEmail.prototype.get = function(list, email, cb) {
 /**
  * @private
  * Newsletter Identity API
+ * @constructor
  * @param {Sendgrid} sg
  * @returns {NewsletterIdentity}
  */
@@ -612,6 +696,7 @@ NewsletterIdentity.prototype.list = function(identity, cb) {
 /**
  * @private
  * Newsletter Recipients API
+ * @constructor
  * @param {Sendgrid} sg
  * @returns {NewsletterRecipients}
  */
@@ -667,6 +752,7 @@ NewsletterRecipients.prototype.get = function(name, cb) {
 /**
  * @private
  * Newsletter Schedule API
+ * @constructor
  * @param {Sendgrid} sg
  * @returns {NewsletterSchedule}
  */
