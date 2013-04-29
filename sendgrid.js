@@ -71,11 +71,13 @@ Sendgrid.prototype.request = function(action, path, options, cb) {
     this.debug && console.log('sendgrid api', action, path, options);
     
     assert.ok(action, 'Action is required');
-    assert.ok(path, 'Path is required');
     assert.ok(cb, 'Callback is required');
     assert.equal(typeof cb, 'function', 'Callback must be function');
     
-    var req = request(SGAPI + '/' + path + '/' + action + '.json', {
+    var url = SGAPI;
+    if (path) url = url + '/' + path;
+    url += '/' + action + '.json';
+    var req = request(url, {
         method: 'POST',
         jar: false,
         qs: this.creds,
@@ -93,9 +95,9 @@ Sendgrid.prototype.request = function(action, path, options, cb) {
         var reqForm = req.form();
         
         for (var field in options.formData) {
-            var value = options.formData[value];
-            if (value.filename) reqForm.appent(field, value.content, {filename: value.filename, contentType: value.contentType});
-            else reqForm.appent(field, value);
+            var value = options.formData[field];
+            if (value.filename) reqForm.append(field, value.content, {filename: value.filename, contentType: value.contentType});
+            else reqForm.append(field, value);
         }
     }
 };
@@ -250,7 +252,7 @@ Mail.prototype.send = function(to, toname, xsmtpapi, from, fromname, subject, te
     if (headers) form.headers = JSON.strigify(headers);
     if (files) {
         for (var filename in files)
-            var file = file[filename];
+            var file = files[filename];
             form['files[' + filename + ']'] = {
                 filename: filename,
                 content: file.content,
@@ -262,7 +264,7 @@ Mail.prototype.send = function(to, toname, xsmtpapi, from, fromname, subject, te
     if (files) options.formData = form;
     else options.form = form;
     
-    this.sg.request('send', 'mail', {form: form}, cb);
+    this.sg.request('mail.send', '', options, cb);
 };
 
 /**
