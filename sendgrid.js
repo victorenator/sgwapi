@@ -67,25 +67,37 @@ Sendgrid.prototype = {
     }
 };
 
-Sendgrid.prototype.request = function(action, path, form, cb) {
-    this.debug && console.log('sendgrid api', action, path, form);
+Sendgrid.prototype.request = function(action, path, options, cb) {
+    this.debug && console.log('sendgrid api', action, path, options);
     
     assert.ok(action, 'Action is required');
     assert.ok(path, 'Path is required');
     assert.ok(cb, 'Callback is required');
     assert.equal(typeof cb, 'function', 'Callback must be function');
     
-    request(SGAPI + '/' + path + '/' + action + '.json', {
+    var req = request(SGAPI + '/' + path + '/' + action + '.json', {
         method: 'POST',
         jar: false,
         qs: this.creds,
-        form: form
+        headers: options.headers,
+        form: options.form
     }, function(err, res, body) {
         if (err) cb(err);
         else if (body.message === 'error' || body.error) cb(body);
         else cb(err, body);
-    })._json = true;
+    });
     
+    req._json = true;
+    
+    if (options.formData) {
+        var reqForm = req.form();
+        
+        for (var field in options.formData) {
+            var value = options.formData[value];
+            if (value.filename) reqForm.appent(field, value.content, {filename: value.filename, contentType: value.contentType});
+            else reqForm.appent(field, value);
+        }
+    }
 };
 
 /**
@@ -117,7 +129,7 @@ Bounces.prototype.get = function(options, cb) {
     if (options.date) options.date = 1;
     if (options.start_date) options.start_date = moment(options.start_date).format('YYYY-MM-DD');
     if (options.end_date) options.end_date = moment(options.end_date).format('YYYY-MM-DD');
-    this.sg.request('get', 'bounces', options, cb);
+    this.sg.request('get', 'bounces', {form: options}, cb);
 };
 
 /**
@@ -134,7 +146,7 @@ Bounces.prototype.delete = function(options, cb) {
     options = _.extend({}, options);
     if (options.start_date) options.start_date = moment(options.start_date).format('YYYY-MM-DD');
     if (options.end_date) options.end_date = moment(options.end_date).format('YYYY-MM-DD');
-    this.sg.request('delete', 'bounces', options, cb);
+    this.sg.request('delete', 'bounces', {form: options}, cb);
 };
 
 /**
@@ -150,7 +162,7 @@ Bounces.prototype.count = function(options, cb) {
     options = _.extend({}, options);
     if (options.start_date) options.start_date = moment(options.start_date).format('YYYY-MM-DD');
     if (options.end_date) options.end_date = moment(options.end_date).format('YYYY-MM-DD');
-    this.sg.request('count', 'bounces', options, cb);
+    this.sg.request('count', 'bounces', {form: options}, cb);
 };
 
 /**
@@ -181,7 +193,7 @@ InvalidEmails.prototype.get = function(options, cb) {
     if (options.date) options.date = 1;
     if (options.start_date) options.start_date = moment(options.start_date).format('YYYY-MM-DD');
     if (options.end_date) options.end_date = moment(options.end_date).format('YYYY-MM-DD');
-    this.sg.request('get', 'invalidemails', options, cb);
+    this.sg.request('get', 'invalidemails', {form: options}, cb);
 };
 
 /**
@@ -192,7 +204,7 @@ InvalidEmails.prototype.get = function(options, cb) {
  */
 InvalidEmails.prototype.delete = function(email, cb) {
     assert.ok(email, 'email is required');
-    this.sg.request('delete', 'invalidemails', {email: email}, cb);
+    this.sg.request('delete', 'invalidemails', {form: {email: email}}, cb);
 };
 
 /**
@@ -236,8 +248,21 @@ Mail.prototype.send = function(to, toname, xsmtpapi, from, fromname, subject, te
     if (bcc) form.bcc = bcc;
     if (date) form.date = date;
     if (headers) form.headers = JSON.strigify(headers);
-    if (files) form.files = files;
-    this.sg.request('send', 'mail', form, cb);
+    if (files) {
+        for (var filename in files)
+            var file = file[filename];
+            form['files[' + filename + ']'] = {
+                filename: filename,
+                content: file.content,
+                contentType: file.contentType
+            };
+    }
+    
+    var options = {};
+    if (files) options.formData = form;
+    else options.form = form;
+    
+    this.sg.request('send', 'mail', {form: form}, cb);
 };
 
 /**
@@ -314,13 +339,13 @@ Newsletter.prototype.add = function(identity, name, subject, text, html, cb) {
     assert.ok(text);
     assert.ok(html);
     
-    this.sg.request('add', 'newsletter', {
+    this.sg.request('add', 'newsletter', {form: {
         identity: identity,
         name: name,
         subject: subject,
         text: text,
         html: html
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -340,14 +365,14 @@ Newsletter.prototype.edit = function(identity, name, newname, subject, text, htm
     assert.ok(text);
     assert.ok(html);
     
-    this.sg.request('edit', 'newsletter', {
+    this.sg.request('edit', 'newsletter', {form: {
         identity: identity,
         name: name,
         newname: newname,
         subject: subject,
         text: text,
         html: html
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -358,9 +383,9 @@ Newsletter.prototype.edit = function(identity, name, newname, subject, text, htm
 Newsletter.prototype.delete = function(name, cb) {
     assert.ok(name);
     
-    this.sg.request('delete', 'newsletter', {
+    this.sg.request('delete', 'newsletter', {form: {
         name: name
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -371,9 +396,9 @@ Newsletter.prototype.delete = function(name, cb) {
 Newsletter.prototype.get = function(name, cb) {
     assert.ok(name);
     
-    this.sg.request('get', 'newsletter', {
+    this.sg.request('get', 'newsletter', {form: {
         name: name
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -382,7 +407,7 @@ Newsletter.prototype.get = function(name, cb) {
  * @param {Function} cb
  */
 Newsletter.prototype.list = function(name, cb) {
-    this.sg.request('list', 'newsletter', name? {name: name}: {}, cb);
+    this.sg.request('list', 'newsletter', {form: name? {name: name}: {}}, cb);
 };
 
 /**
@@ -405,10 +430,10 @@ NewsletterCategory.prototype.add = function(category, name, cb) {
     assert.ok(category);
     assert.ok(name);
     
-    this.sg.request('add', 'newsletter/category', {
+    this.sg.request('add', 'newsletter/category', {form: {
         category: category,
         name: name
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -419,9 +444,9 @@ NewsletterCategory.prototype.add = function(category, name, cb) {
 NewsletterCategory.prototype.create = function(category, cb) {
     assert.ok(category);
     
-    this.sg.request('create', 'newsletter/category', {
+    this.sg.request('create', 'newsletter/category', {form: {
         category: category
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -430,9 +455,9 @@ NewsletterCategory.prototype.create = function(category, cb) {
  * @param {Function} cb 
  */
 NewsletterCategory.prototype.list = function(category, cb) {
-    this.sg.request('list', 'newsletter/category', {
+    this.sg.request('list', 'newsletter/category', {form: {
         category: category
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -446,7 +471,7 @@ NewsletterCategory.prototype.remove = function(name, category, cb) {
     
     var form = {name: name};
     if (category) form.category = category;
-    this.sg.request('remove', 'newsletter/category', form, cb);
+    this.sg.request('remove', 'newsletter/category', {form: form}, cb);
 };
 
 /**
@@ -481,10 +506,10 @@ NewsletterLists.prototype = {
 NewsletterLists.prototype.add = function(list, name, columns, cb) {
     assert.ok(list);
     
-    this.sg.request('add', 'newsletter/lists', _.defaults({
+    this.sg.request('add', 'newsletter/lists', {form: _.defaults({
         list: list,
         name: name
-    }, columns), cb);
+    }, columns)}, cb);
 };
 
 /**
@@ -495,9 +520,9 @@ NewsletterLists.prototype.add = function(list, name, columns, cb) {
 NewsletterLists.prototype.delete = function(list, cb) {
     assert.ok(list);
 
-    this.sg.request('delete', 'newsletter/lists', {
+    this.sg.request('delete', 'newsletter/lists', {form: {
         list: list
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -510,10 +535,10 @@ NewsletterLists.prototype.edit = function(list, newlist, cb) {
     assert.ok(list);
     assert.ok(newlist);
 
-    this.sg.request('edit', 'newsletter/lists', {
+    this.sg.request('edit', 'newsletter/lists', {form: {
         list: list,
         newlist: newlist
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -522,7 +547,7 @@ NewsletterLists.prototype.edit = function(list, newlist, cb) {
  * @param {Function} cb
  */
 NewsletterLists.prototype.get = function(list, cb) {
-    this.sg.request('get', 'newsletter/lists', list? {list: list}: {}, cb);
+    this.sg.request('get', 'newsletter/lists', {form: list? {list: list}: {}}, cb);
 };
 
 /**
@@ -546,10 +571,10 @@ NewsletterListsEmail.prototype.add = function(list, data, cb) {
     assert.ok(list);
     assert.ok(data);
     
-    this.sg.request('add', 'newsletter/lists/email', {
+    this.sg.request('add', 'newsletter/lists/email', {form: {
         list: list,
         data: data.map(JSON.stringify)
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -561,10 +586,10 @@ NewsletterListsEmail.prototype.add = function(list, data, cb) {
 NewsletterListsEmail.prototype.delete = function(list, email, cb) {
     assert.ok(list);
     
-    this.sg.request('delete', 'newsletter/lists/email', {
+    this.sg.request('delete', 'newsletter/lists/email', {form: {
         list: list, 
         email: email
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -582,7 +607,7 @@ NewsletterListsEmail.prototype.get = function(list, email, cb) {
 
     if (email) form.email = email;
     
-    this.sg.request('get', 'newsletter/lists/email', form, cb);
+    this.sg.request('get', 'newsletter/lists/email', {form: form}, cb);
 };
 
 /**
@@ -618,7 +643,7 @@ NewsletterIdentity.prototype.add = function(identity, name, email, address, city
     assert.ok(zip);
     assert.ok(country);
     
-    this.sg.request('add', 'newsletter/identity', {
+    this.sg.request('add', 'newsletter/identity', {form: {
         identity: identity,
         name: name,
         email: email,
@@ -627,7 +652,7 @@ NewsletterIdentity.prototype.add = function(identity, name, email, address, city
         state: state,
         zip: zip,
         country: country
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -638,9 +663,9 @@ NewsletterIdentity.prototype.add = function(identity, name, email, address, city
 NewsletterIdentity.prototype.delete = function(identity, cb) {
     assert.ok(identity);
     
-    this.sg.request('delete', 'newsletter/identity', {
+    this.sg.request('delete', 'newsletter/identity', {form: {
         identity: identity
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -668,7 +693,7 @@ NewsletterIdentity.prototype.edit = function(identity, newidentity, name, email,
     if (state) form.state = state;
     if (zip) form.zip = zip;
     if (country) form.country = country;
-    this.sg.request('edit', 'newsletter/identity', form, cb);
+    this.sg.request('edit', 'newsletter/identity', {form: form}, cb);
 };
 
 /**
@@ -679,9 +704,9 @@ NewsletterIdentity.prototype.edit = function(identity, newidentity, name, email,
 NewsletterIdentity.prototype.get = function(identity, cb) {
     assert.ok(identity);
     
-    this.sg.request('get', 'newsletter/identity', {
+    this.sg.request('get', 'newsletter/identity', {form: {
         identity: identity
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -690,7 +715,7 @@ NewsletterIdentity.prototype.get = function(identity, cb) {
  * @param {Function} cb
  */
 NewsletterIdentity.prototype.list = function(identity, cb) {
-    this.sg.request('list', 'newsletter/identity', identity? {identity: identity}: {}, cb);
+    this.sg.request('list', 'newsletter/identity', {form: identity? {identity: identity}: {}}, cb);
 };
 
 /**
@@ -714,10 +739,10 @@ NewsletterRecipients.prototype.add = function(name, list, cb) {
     assert.ok(name);
     assert.ok(list);
     
-    this.sg.request('add', 'newsletter/recipients', {
+    this.sg.request('add', 'newsletter/recipients', {form: {
         name: name,
         list: list
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -730,10 +755,10 @@ NewsletterRecipients.prototype.delete = function(name, list, cb) {
     assert.ok(name);
     assert.ok(list);
     
-    this.sg.request('delete', 'newsletter/recipients', {
+    this.sg.request('delete', 'newsletter/recipients', {form: {
         name: name,
         list: list
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -744,9 +769,9 @@ NewsletterRecipients.prototype.delete = function(name, list, cb) {
 NewsletterRecipients.prototype.get = function(name, cb) {
     assert.ok(name);
     
-    this.sg.request('get', 'newsletter/recipients', {
+    this.sg.request('get', 'newsletter/recipients', {form: {
         name: name
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -773,7 +798,7 @@ NewsletterSchedule.prototype.add = function(name, at, after, cb) {
     var form = {name: name};
     if (at) form.at = at;
     if (after) form.after = after;
-    this.sg.request('add', 'newsletter/schedule', form, cb);
+    this.sg.request('add', 'newsletter/schedule', {form: form}, cb);
 };
 
 /**
@@ -784,9 +809,9 @@ NewsletterSchedule.prototype.add = function(name, at, after, cb) {
 NewsletterSchedule.prototype.delete = function(name, cb) {
     assert.ok(name);
     
-    this.sg.request('delete', 'newsletter/schedule', {
+    this.sg.request('delete', 'newsletter/schedule', {form: {
         name: name
-    }, cb);
+    }}, cb);
 };
 
 /**
@@ -797,9 +822,9 @@ NewsletterSchedule.prototype.delete = function(name, cb) {
 NewsletterSchedule.prototype.get = function(name, cb) {
     assert.ok(name);
     
-    this.sg.request('get', 'newsletter/schedule', {
+    this.sg.request('get', 'newsletter/schedule', {form: {
         name: name
-    }, cb);
+    }}, cb);
 };
 
 exports.Sendgrid = Sendgrid;
