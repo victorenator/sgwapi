@@ -244,12 +244,12 @@ Mail.prototype.send = function(to, toname, xsmtpapi, from, fromname, subject, te
         text: text
     };
     if (toname) form.toname = toname;
-    if (xsmtpapi) form['x-smtpapi'] = JSON.strigify(xsmtpapi);
+    if (xsmtpapi) form['x-smtpapi'] = JSON.stringify(xsmtpapi);
     if (fromname) form.fromname = fromname;
     if (html) form.html = html;
     if (bcc) form.bcc = bcc;
     if (date) form.date = date;
-    if (headers) form.headers = JSON.strigify(headers);
+    if (headers) form.headers = JSON.stringify(headers);
     if (files) {
         for (var filename in files)
             var file = files[filename];
