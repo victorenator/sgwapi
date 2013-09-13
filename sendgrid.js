@@ -91,13 +91,18 @@ Sendgrid.prototype.request = function(action, path, options, cb) {
     
     req._json = true;
     
+    function fillForm(form, field, value) {
+        if (value.filename) form.append(field, value.content, {filename: value.filename, contentType: value.contentType});
+        else if (_.isArray(value)) value.forEach(function(v) { fillForm(form, field, v); });
+        else form.append(field, value);
+    }
+    
     if (options.formData) {
         var reqForm = req.form();
         
         for (var field in options.formData) {
             var value = options.formData[field];
-            if (value.filename) reqForm.append(field, value.content, {filename: value.filename, contentType: value.contentType});
-            else reqForm.append(field, value);
+            fillForm(reqForm, field, value);
         }
     }
 };
@@ -222,7 +227,7 @@ function Mail(sg) {
 
 /**
  * Sends a message to one recipient
- * @param {String} to Valid email address of receipient
+ * @param {String|Array} to Valid email address of receipient(s)
  * @param {String} [toname] Given name of the recipient
  * @param {Object} [xsmtpapi] 'X-SMTPAPI' header
  * @param {String} from Valid email address of sender
@@ -798,7 +803,7 @@ NewsletterSchedule.prototype.add = function(name, at, after, cb) {
     assert.ok(name);
     
     var form = {name: name};
-    if (at) form.at = at;
+    if (at) form.at = moment(at).toJSON();
     if (after) form.after = after;
     this.sg.request('add', 'newsletter/schedule', {form: form}, cb);
 };
