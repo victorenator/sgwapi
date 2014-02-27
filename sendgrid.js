@@ -256,13 +256,14 @@ Mail.prototype.send = function(to, toname, xsmtpapi, from, fromname, subject, te
     if (date) form.date = date;
     if (headers) form.headers = JSON.stringify(headers);
     if (files) {
-        for (var filename in files)
+        for (var filename in files) {
             var file = files[filename];
             form['files[' + filename + ']'] = {
                 filename: filename,
                 content: file.content,
                 contentType: file.contentType
             };
+        }
     }
     
     var options = {};
