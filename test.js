@@ -27,7 +27,7 @@ var sendgrid = new sgapi.Sendgrid(process.argv[2], process.argv[3], {debug: true
 //    console.log('bounces.get', error, emails);
 //});
 
-sendgrid.mail.send(['vic@itteco.com'], ['Vic Vuc'], {unique_args: {message_id: '143432432'}}, 'admin@loftery.com', 'A GA', 'Test Att', 'Test Attachment', '<p>Test Attachment</p>', null, null, {'Message-ID': '<143432432@loftery.com>'}, null, function(error, data) {
+sendgrid.mail.send(['abc@example.com'], ['First Last'], {unique_args: {message_id: '143432432'}}, 'def@example.com', 'A GA', 'Test Att', 'Test Attachment', '<p>Test Attachment</p>', null, null, {'Message-ID': '<143432432@example.com>'}, null, function(error, data) {
     console.log(error, data);
 });
 
