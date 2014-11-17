@@ -5,6 +5,8 @@ var assert = require('assert');
 var moment = require('moment');
 var request = require('request');
 
+var debug = require('debug')('sgwapi');
+
 var SGAPI = 'https://sendgrid.com/api';
 
 /**
@@ -68,7 +70,7 @@ Sendgrid.prototype = {
 };
 
 Sendgrid.prototype.request = function(action, path, options, cb) {
-    this.debug && console.log('sendgrid api', action, path, options);
+    debug("request %s %s; options: %j", action, path, options);
     
     assert.ok(action, 'Action is required');
     assert.ok(cb, 'Callback is required');
@@ -84,6 +86,8 @@ Sendgrid.prototype.request = function(action, path, options, cb) {
         headers: options.headers,
         form: options.form
     }, function(err, res, body) {
+        debug("response %s %s; error: %j; response code: %d; body: %j", action, path, err, res.statusCode, body);
+        
         if (err) cb(err);
         else if (body.message === 'error' || body.error) cb(body);
         else cb(err, body);
