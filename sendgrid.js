@@ -585,7 +585,7 @@ NewsletterListsEmail.prototype.add = function(list, data, cb) {
     
     this.sg.request('add', 'newsletter/lists/email', {form: {
         list: list,
-        data: data.map(JSON.stringify)
+        data: JSON.stringify(data)
     }}, cb);
 };
 
