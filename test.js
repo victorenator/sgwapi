@@ -1,11 +1,11 @@
 if (process.argv.length < 4) {
-    console.log('Usage:', process.argv[0], process.argv[1], '<api-user> <api-key>');
+    console.log('Usage: DEBUG=sgwapi %s %s <api-user> <api-key>', process.argv[0], process.argv[1]);
     process.exit(1);
 }
 
 var sgapi = require('./sendgrid');
 
-var sendgrid = new sgapi.Sendgrid(process.argv[2], process.argv[3], {debug: true});
+var sendgrid = new sgapi.Sendgrid(process.argv[2], process.argv[3]);
 
 //sendgrid.newsletter.list(null, function(error, list) {
 //    console.log('newsletter.list', error, list);

@@ -26,8 +26,6 @@ function Sendgrid(user, key, options) {
         api_user: user,
         api_key: key
     };
-
-    this.debug = options && options.debug;
 }
 
 Sendgrid.prototype = {
@@ -84,7 +82,8 @@ Sendgrid.prototype.request = function(action, path, options, cb) {
         jar: false,
         qs: this.creds,
         headers: options.headers,
-        form: options.form
+        form: options.form,
+        useQuerystring: true
     }, function(err, res, body) {
         debug("response %s %s; error: %j; response code: %d; body: %j", action, path, err, res.statusCode, body);
         
@@ -585,7 +584,7 @@ NewsletterListsEmail.prototype.add = function(list, data, cb) {
     
     this.sg.request('add', 'newsletter/lists/email', {form: {
         list: list,
-        data: JSON.stringify(data)
+        data: data.map(JSON.stringify)
     }}, cb);
 };
 
