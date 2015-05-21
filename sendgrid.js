@@ -1,3 +1,5 @@
+/* global exports */
+
 (function() {
 
 var _ = require('underscore');
@@ -12,15 +14,15 @@ var SGAPI = 'https://sendgrid.com/api';
 /**
  * @public
  * Sendgrid API
+ * @class Sendgrid
  * @constructor
  * @param {String} user API user
  * @param {String} key API key
  * @param {Object} options Options
- * @returns {Sendgrid}
  */
 function Sendgrid(user, key, options) {
-    assert.ok(user, "API user is required");
-    assert.ok(key, "API key is required");
+    assert.ok(user, 'API user is required');
+    assert.ok(key, 'API key is required');
     
     this.creds = {
         api_user: user,
@@ -68,7 +70,7 @@ Sendgrid.prototype = {
 };
 
 Sendgrid.prototype.request = function(action, path, options, cb) {
-    debug("request %s %s; options: %j", action, path, options);
+    debug('request %s %s; options: %j', action, path, options);
     
     assert.ok(action, 'Action is required');
     assert.ok(cb, 'Callback is required');
@@ -85,7 +87,7 @@ Sendgrid.prototype.request = function(action, path, options, cb) {
         form: options.form,
         useQuerystring: true
     }, function(err, res, body) {
-        debug("response %s %s; error: %j; response code: %d; body: %j", action, path, err, res.statusCode, body);
+        debug('response %s %s; error: %j; response code: %d; body: %j', action, path, err, res.statusCode, body);
         
         if (err) cb(err);
         else if (body.message === 'error' || body.error) cb(body);
@@ -273,7 +275,87 @@ Mail.prototype.send = function(to, toname, xsmtpapi, from, fromname, subject, te
     if (files) options.formData = form;
     else options.form = form;
     
-    this.sg.request('mail.send', '', options, cb);
+    return this.sg.request('mail.send', '', options, cb);
+};
+
+/**
+ * Sends a message
+ * @param {Object} message
+ * @param {Object|Array} message.to Recipients
+ * @param {String} message.to.email Valid email address of receipient
+ * @param {String} message.to.name Given name of the recipient
+ * @param {Object} message.from Sender object
+ * @param {String} message.from.email Valid email address of sender
+ * @param {String} message.from.name Given name of the sender
+ * @param {String} message.subject The subject of your email
+ * @param {String} message.text The plain text content of your email message
+ * @param {String} message.html The HTML content of your email message
+ * @param {Object|Array} message.cc 
+ * @param {String} message.cc.email Valid email address of cc receipient
+ * @param {String} message.cc.name This is the name be appended to the cc field
+ * @param {Object|Array} message.bcc 
+ * @param {String} message.bcc.email Valid email address of bcc receipient
+ * @param {String} message.bcc.name This is the name be appended to the bcc field
+ * @param {String} message.replyto Append a reply-to field to your email message
+ * @param {String} message.date Specify the date header of your email
+ * @param {Array} message.attachments Attachments
+ * @param {String} message.attachments.filename Attachment filename
+ * @param {String} message.attachments.content Attachment content
+ * @param {String} message.attachments.contentType Attachment content type
+ * @param {Object} message.headers description Key-value map of headers
+ * @param {Function} cb
+ */
+Mail.prototype.sendMsg = function (message, cb) {
+    assert(message);
+    assert(message.to);
+    assert(message.from);
+    assert(message.subject);
+    assert(message.text || message.html);
+    
+    var to = _.isArray(message.to)? message.to: [message.to];
+    
+    var form = {
+        to: _.map(to, 'email'),
+        toname: _.map(to, 'name'),
+        from: message.from.email,
+        fromname: message.from.name,
+        subject: message.subject
+    };
+    
+    if (message.cc) {
+        var cc = _.isArray(message.cc)? message.cc: [message.cc];
+        form.cc = _.map(cc, 'email');
+        form.ccname = _.map(cc, 'name');
+    }
+    
+    if (message.bcc) {
+        var bcc = _.isArray(message.bcc)? message.bcc: [message.bcc];
+        form.bcc = _.map(bcc, 'email');
+        form.bccname = _.map(bcc, 'name');
+    }
+    
+    if (message.date) form.date = message.date.toUTCString();
+    if (message.headers) form.headers = JSON.stringify(message.headers);
+    if (message.replyto) form.replyto = message.replyto;
+    
+    if (message.text) form.text = message.text;
+    if (message.html) form.html = message.html;
+    
+    if (message.xsmtpapi) form['x-smtpapi'] = JSON.stringify(message.xsmtpapi);
+    
+    _.each(message.attachments, function (file) {
+        form['files[' + file.filename + ']'] = {
+            filename: file.filename,
+            content: file.content,
+            contentType: file.contentType
+        };
+    });
+    
+    var options = {};
+    if (message.attachments) options.formData = form;
+    else options.form = form;
+    
+    return this.sg.request('mail.send', '', options, cb);
 };
 
 /**

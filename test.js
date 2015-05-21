@@ -1,3 +1,5 @@
+/* global process */
+
 if (process.argv.length < 4) {
     console.log('Usage: DEBUG=sgwapi %s %s <api-user> <api-key>', process.argv[0], process.argv[1]);
     process.exit(1);
@@ -27,7 +29,36 @@ var sendgrid = new sgapi.Sendgrid(process.argv[2], process.argv[3]);
 //    console.log('bounces.get', error, emails);
 //});
 
-sendgrid.mail.send(['abc@example.com'], ['First Last'], {unique_args: {message_id: '143432432'}}, 'def@example.com', 'A GA', 'Test Att', 'Test Attachment', '<p>Test Attachment</p>', null, null, {'Message-ID': '<143432432@example.com>'}, null, function(error, data) {
+sendgrid.mail.sendMsg({
+    to: {
+        email: 'vic@itteco.com',
+        name: 'Vic'
+    },
+    cc: {
+        email: 'vic+cc@itteco.com',
+        name: 'Vic CC'
+    },
+    from: {
+        email: 'vic@loftery.com',
+        name: 'Vic'
+    },
+    subject: 'Test Message',
+    text: 'TestMessage\n',
+    html: '<p>TestMessage<p>\n',
+    replyto: 'no-reply@loftery.com',
+    date: new Date(),
+    attachments: [
+        {
+            filename: 'abc.txt',
+            content: 'abc\n',
+            contentType: 'text/plain'
+                    
+        }
+    ],
+    headers: {
+        'X-Order-ID': '432432'
+    }
+}, function(error, data) {
     console.log(error, data);
 });
 
