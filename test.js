@@ -31,28 +31,27 @@ var sendgrid = new sgapi.Sendgrid(process.argv[2], process.argv[3]);
 
 sendgrid.mail.sendMsg({
     to: {
-        email: 'vic@itteco.com',
-        name: 'Vic'
+        email: 'to@example.com',
+        name: 'To'
     },
     cc: {
-        email: 'vic+cc@itteco.com',
-        name: 'Vic CC'
+        email: 'cc@example.com',
+        name: 'Cc'
     },
     from: {
-        email: 'vic@loftery.com',
-        name: 'Vic'
+        email: 'from@example.com',
+        name: 'From'
     },
     subject: 'Test Message',
     text: 'TestMessage\n',
     html: '<p>TestMessage<p>\n',
-    replyto: 'no-reply@loftery.com',
+    replyto: 'no-reply@example.com',
     date: new Date(),
     attachments: [
         {
             filename: 'abc.txt',
             content: 'abc\n',
             contentType: 'text/plain'
-                    
         }
     ],
     headers: {
@@ -61,5 +60,3 @@ sendgrid.mail.sendMsg({
 }, function(error, data) {
     console.log(error, data);
 });
-
-

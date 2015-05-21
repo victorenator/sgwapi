@@ -87,7 +87,7 @@ Sendgrid.prototype.request = function(action, path, options, cb) {
         form: options.form,
         useQuerystring: true
     }, function(err, res, body) {
-        debug('response %s %s; error: %j; response code: %d; body: %j', action, path, err, res.statusCode, body);
+        debug('response %s %s; error: %j; response code: %d; body: %j', action, path, err, res && res.statusCode, body);
         
         if (err) cb(err);
         else if (body.message === 'error' || body.error) cb(body);
