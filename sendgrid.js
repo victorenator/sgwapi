@@ -72,9 +72,9 @@ Sendgrid.prototype = {
 Sendgrid.prototype.request = function(action, path, options, cb) {
     debug('request %s %s; options: %j', action, path, options);
     
-    assert.ok(action, 'Action is required');
-    assert.ok(cb, 'Callback is required');
-    assert.equal(typeof cb, 'function', 'Callback must be function');
+    assert.ok(action, 'action is required');
+    assert.ok(cb, 'callback is required');
+    assert.equal(typeof cb, 'function', 'callback must be function');
     
     var url = SGAPI;
     if (path) url = url + '/' + path;
@@ -247,6 +247,11 @@ function Mail(sg) {
  * @param {Function} cb
  */
 Mail.prototype.send = function(to, toname, xsmtpapi, from, fromname, subject, text, html, bcc, date, headers, files, cb) {
+    assert.ok(to, 'receipient email is required');
+    assert.ok(from, 'sender email is required');
+    assert.ok(subject, 'subject is required');
+    assert.ok(text || html, 'body is required');
+    
     var form = {
         to: to,
         from: from,
@@ -306,11 +311,11 @@ Mail.prototype.send = function(to, toname, xsmtpapi, from, fromname, subject, te
  * @param {Function} cb
  */
 Mail.prototype.sendMsg = function (message, cb) {
-    assert(message);
-    assert(message.to);
-    assert(message.from);
-    assert(message.subject);
-    assert(message.text || message.html);
+    assert.ok(message, 'message is required');
+    assert.ok(message.to, 'receipient email is required');
+    assert.ok(message.from, 'sender email is required');
+    assert.ok(message.subject, 'subject is required');
+    assert.ok(message.text || message.html, 'body is required');
     
     var to = _.isArray(message.to)? message.to: [message.to];
     
@@ -426,11 +431,11 @@ Newsletter.prototype = {
  * @param {Function} cb
  */
 Newsletter.prototype.add = function(identity, name, subject, text, html, cb) {
-    assert.ok(identity);
-    assert.ok(name);
-    assert.ok(subject);
-    assert.ok(text);
-    assert.ok(html);
+    assert.ok(identity, 'identity is required');
+    assert.ok(name, 'name is required');
+    assert.ok(subject, 'subject is required');
+    assert.ok(text, 'text is required');
+    assert.ok(html, 'html is required');
     
     this.sg.request('add', 'newsletter', {form: {
         identity: identity,
@@ -452,11 +457,11 @@ Newsletter.prototype.add = function(identity, name, subject, text, html, cb) {
  * @param {Function} cb
  */
 Newsletter.prototype.edit = function(identity, name, newname, subject, text, html, cb) {
-    assert.ok(identity);
-    assert.ok(name);
-    assert.ok(subject);
-    assert.ok(text);
-    assert.ok(html);
+    assert.ok(identity, 'identity is required');
+    assert.ok(name, 'name is required');
+    assert.ok(subject, 'subject is required');
+    assert.ok(text, 'text is required');
+    assert.ok(html, 'html is required');
     
     this.sg.request('edit', 'newsletter', {form: {
         identity: identity,
@@ -474,7 +479,7 @@ Newsletter.prototype.edit = function(identity, name, newname, subject, text, htm
  * @param {Function} cb
  */
 Newsletter.prototype.delete = function(name, cb) {
-    assert.ok(name);
+    assert.ok(name, 'name is required');
     
     this.sg.request('delete', 'newsletter', {form: {
         name: name
@@ -487,7 +492,7 @@ Newsletter.prototype.delete = function(name, cb) {
  * @param {Function} cb
  */
 Newsletter.prototype.get = function(name, cb) {
-    assert.ok(name);
+    assert.ok(name, 'name is required');
     
     this.sg.request('get', 'newsletter', {form: {
         name: name
@@ -520,8 +525,8 @@ function NewsletterCategory(sg) {
  * @param {type} cb
  */
 NewsletterCategory.prototype.add = function(category, name, cb) {
-    assert.ok(category);
-    assert.ok(name);
+    assert.ok(category, 'category is required');
+    assert.ok(name, 'name is required');
     
     this.sg.request('add', 'newsletter/category', {form: {
         category: category,
@@ -535,7 +540,7 @@ NewsletterCategory.prototype.add = function(category, name, cb) {
  * @param {Function} cb
  */
 NewsletterCategory.prototype.create = function(category, cb) {
-    assert.ok(category);
+    assert.ok(category, 'category is required');
     
     this.sg.request('create', 'newsletter/category', {form: {
         category: category
@@ -560,7 +565,7 @@ NewsletterCategory.prototype.list = function(category, cb) {
  * @param {Function} cb
  */
 NewsletterCategory.prototype.remove = function(name, category, cb) {
-    assert.ok(name);
+    assert.ok(name, 'name is required');
     
     var form = {name: name};
     if (category) form.category = category;
@@ -597,7 +602,7 @@ NewsletterLists.prototype = {
  * @param {Function} cb
  */
 NewsletterLists.prototype.add = function(list, name, columns, cb) {
-    assert.ok(list);
+    assert.ok(list, 'list is required');
     
     this.sg.request('add', 'newsletter/lists', {form: _.defaults({
         list: list,
@@ -611,7 +616,7 @@ NewsletterLists.prototype.add = function(list, name, columns, cb) {
  * @param {Function} cb
  */
 NewsletterLists.prototype.delete = function(list, cb) {
-    assert.ok(list);
+    assert.ok(list, 'list is required');
 
     this.sg.request('delete', 'newsletter/lists', {form: {
         list: list
@@ -625,8 +630,8 @@ NewsletterLists.prototype.delete = function(list, cb) {
  * @param {Function} cb
  */
 NewsletterLists.prototype.edit = function(list, newlist, cb) {
-    assert.ok(list);
-    assert.ok(newlist);
+    assert.ok(list, 'list is required');
+    assert.ok(newlist, 'newlist is required');
 
     this.sg.request('edit', 'newsletter/lists', {form: {
         list: list,
@@ -661,8 +666,8 @@ function NewsletterListsEmail(sg) {
  * @param {Function} cb
  */
 NewsletterListsEmail.prototype.add = function(list, data, cb) {
-    assert.ok(list);
-    assert.ok(data);
+    assert.ok(list, 'list is required');
+    assert.ok(data, 'data is required');
     
     this.sg.request('add', 'newsletter/lists/email', {form: {
         list: list,
@@ -677,7 +682,7 @@ NewsletterListsEmail.prototype.add = function(list, data, cb) {
  * @param {Function} cb
  */
 NewsletterListsEmail.prototype.delete = function(list, email, cb) {
-    assert.ok(list);
+    assert.ok(list, 'list is required');
     
     this.sg.request('delete', 'newsletter/lists/email', {form: {
         list: list, 
@@ -692,7 +697,7 @@ NewsletterListsEmail.prototype.delete = function(list, email, cb) {
  * @param {Function} cb
  */
 NewsletterListsEmail.prototype.get = function(list, email, cb) {
-    assert.ok(list);
+    assert.ok(list, 'list is required');
     
     var form = {
         list: list
@@ -727,14 +732,14 @@ function NewsletterIdentity(sg) {
  * @param {Function} cb
  */
 NewsletterIdentity.prototype.add = function(identity, name, email, address, city, state, zip, country, cb) {
-    assert.ok(identity);
-    assert.ok(name);
-    assert.ok(email);
-    assert.ok(address);
-    assert.ok(city);
-    assert.ok(state);
-    assert.ok(zip);
-    assert.ok(country);
+    assert.ok(identity, 'identity is required');
+    assert.ok(name, 'name is required');
+    assert.ok(email, 'email is required');
+    assert.ok(address, 'address is required');
+    assert.ok(city, 'city is required');
+    assert.ok(state, 'state is required');
+    assert.ok(zip, 'zip is required');
+    assert.ok(country, 'country is required');
     
     this.sg.request('add', 'newsletter/identity', {form: {
         identity: identity,
@@ -754,7 +759,7 @@ NewsletterIdentity.prototype.add = function(identity, name, email, address, city
  * @param {Function} cb
  */
 NewsletterIdentity.prototype.delete = function(identity, cb) {
-    assert.ok(identity);
+    assert.ok(identity, 'identity is required');
     
     this.sg.request('delete', 'newsletter/identity', {form: {
         identity: identity
@@ -775,7 +780,7 @@ NewsletterIdentity.prototype.delete = function(identity, cb) {
  * @param {Function} cb
  */
 NewsletterIdentity.prototype.edit = function(identity, newidentity, name, email, address, city, state, zip, country, cb) {
-    assert.ok(identity);
+    assert.ok(identity, 'identity is required');
     
     var form = {identity: identity};
     if (newidentity) form.newidentity = newidentity;
@@ -795,7 +800,7 @@ NewsletterIdentity.prototype.edit = function(identity, newidentity, name, email,
  * @param {Function} cb
  */
 NewsletterIdentity.prototype.get = function(identity, cb) {
-    assert.ok(identity);
+    assert.ok(identity, 'identity is required');
     
     this.sg.request('get', 'newsletter/identity', {form: {
         identity: identity
@@ -829,8 +834,8 @@ function NewsletterRecipients(sg) {
  * @param {Function} cb
  */
 NewsletterRecipients.prototype.add = function(name, list, cb) {
-    assert.ok(name);
-    assert.ok(list);
+    assert.ok(name, 'name is required');
+    assert.ok(list, 'list is required');
     
     this.sg.request('add', 'newsletter/recipients', {form: {
         name: name,
@@ -845,8 +850,8 @@ NewsletterRecipients.prototype.add = function(name, list, cb) {
  * @param {Function} cb
  */
 NewsletterRecipients.prototype.delete = function(name, list, cb) {
-    assert.ok(name);
-    assert.ok(list);
+    assert.ok(name, 'name is required');
+    assert.ok(list, 'list is required');
     
     this.sg.request('delete', 'newsletter/recipients', {form: {
         name: name,
@@ -860,7 +865,7 @@ NewsletterRecipients.prototype.delete = function(name, list, cb) {
  * @param {Function} cb
  */
 NewsletterRecipients.prototype.get = function(name, cb) {
-    assert.ok(name);
+    assert.ok(name, 'name is required');
     
     this.sg.request('get', 'newsletter/recipients', {form: {
         name: name
@@ -886,7 +891,7 @@ function NewsletterSchedule(sg) {
  * @param {Function} cb
  */
 NewsletterSchedule.prototype.add = function(name, at, after, cb) {
-    assert.ok(name);
+    assert.ok(name, 'name is required');
     
     var form = {name: name};
     if (at) form.at = moment(at).toJSON();
@@ -900,7 +905,7 @@ NewsletterSchedule.prototype.add = function(name, at, after, cb) {
  * @param {Function} cb
  */
 NewsletterSchedule.prototype.delete = function(name, cb) {
-    assert.ok(name);
+    assert.ok(name, 'name is required');
     
     this.sg.request('delete', 'newsletter/schedule', {form: {
         name: name
@@ -913,7 +918,7 @@ NewsletterSchedule.prototype.delete = function(name, cb) {
  * @param {Function} cb
  */
 NewsletterSchedule.prototype.get = function(name, cb) {
-    assert.ok(name);
+    assert.ok(name, 'name is required');
     
     this.sg.request('get', 'newsletter/schedule', {form: {
         name: name
