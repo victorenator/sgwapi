@@ -320,8 +320,8 @@ Mail.prototype.sendMsg = function (message, cb) {
     var to = _.isArray(message.to)? message.to: [message.to];
     
     var form = {
-        to: _.map(to, 'email'),
-        toname: _.map(to, 'name'),
+        to: _.pluck(to, 'email'),
+        toname: _.pluck(to, 'name'),
         from: message.from.email,
         fromname: message.from.name,
         subject: message.subject
