@@ -12,7 +12,7 @@
     
     "dependencies": {
         "debug": "~2",
-        "moment": "~2",
+        "moment": "~> 2.19.3",
         "request": "~2",
         "underscore": "~1"
     },   
