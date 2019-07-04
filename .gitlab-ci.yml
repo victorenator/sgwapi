@@ -1,8 +1,5 @@
 image: node:latest
 
-include:
-  template: Dependency-Scanning.gitlab-ci.yml
-
 stages:
   - lint
 
