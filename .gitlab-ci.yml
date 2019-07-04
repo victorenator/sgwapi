@@ -4,6 +4,7 @@ stages:
   - lint
 
 lint js:
+  state: lint
   before_script:
     - npm ci
   script:
