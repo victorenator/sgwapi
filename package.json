@@ -8,7 +8,6 @@
         "email": "victorenator@gmail.com"
     },
     "dependencies": {
-<<<<<<< HEAD
         "debug": "^4.1.1",
         "node-fetch": "^2.6.0"
     },
@@ -24,18 +23,6 @@
         "email",
         "newsletter"
     ],
-=======
-        "debug": "~2",
-        "moment": "~> 2.19.3",
-        "request": "~2",
-        "underscore": "~1"
-    },   
-    
-    "keywords": ["sendgrid", "email", "newsletter"],
-    
-    "main": "./sendgrid",
-
->>>>>>> 204362b908f32f33b4bdd12265360781a1180d6d
     "repository": {
         "type": "git",
         "url": "git://github.com/victorenator/sgwapi.git"
