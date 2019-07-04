@@ -1,0 +1,10 @@
+image: node:latest
+
+stages:
+  - lint
+
+lint js:
+  before_script:
+    - npm ci
+  script:
+    - node_modules/.bin/gulp lint-js

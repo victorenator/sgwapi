@@ -5,20 +5,22 @@ MIT
 
 
 ## Install ##
-
+```bash
 npm install sgwapi
+```
 
 
 ## Modules ##
-- Invalid Emails
+- Suppressions
 - Mail
-- Newsletter API
+- Marketing
 
 
 ## Usage ##
+```js
+import {Mail} from 'sgwapi/mail';
 
-var sgwapi = require('sgwapi');
+const mail = new Mail('api_key');
 
-var sg = new sgwapi.Sendgrid('api_user', 'api_key');
-
-sg.mail.send(args...);
+await mail.send(args...);
+```

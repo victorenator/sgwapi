@@ -1,32 +1,33 @@
 {
     "name": "sgwapi",
-    "version": "0.7.0",
-    
+    "version": "1.0.0",
     "description": "Sendgrid Web API",
     "homepage": "https://github.com/victorenator/sgwapi",
-    
     "author": {
         "name": "Viktar Vauchkevich",
         "email": "victorenator@gmail.com"
     },
-    
     "dependencies": {
-        "debug": "~2",
-        "moment": "~2",
-        "request": "~2",
-        "underscore": "~1"
-    },   
-    
-    "keywords": ["sendgrid", "email", "newsletter"],
-    
-    "main": "./sendgrid",
-
+        "debug": "^4.1.1",
+        "node-fetch": "^2.6.0"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.4.5",
+        "@babel/plugin-transform-modules-commonjs": "^7.4.4",
+        "gulp": "^4.0.2",
+        "gulp-babel": "^8.0.0",
+        "gulp-eslint": "^6.0.0"
+    },
+    "keywords": [
+        "sendgrid",
+        "email",
+        "newsletter"
+    ],
     "repository": {
         "type": "git",
         "url": "git://github.com/victorenator/sgwapi.git"
     },
-
     "engines": {
-        "nodejs": ">= 0.6"
+        "node": "10"
     }
 }
