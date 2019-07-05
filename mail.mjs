@@ -71,14 +71,14 @@ export class Mail {
         const body = {
             personalizations: [
                 {
-                    to,
-                    cc,
-                    bcc
+                    to: to.map(recipient),
+                    cc: cc && cc.length > 0? cc.map(recipient): undefined,
+                    bcc: bcc && bcc.length > 0? bcc.map(recipient): undefined
                 }
             ],
             subject,
-            from,
-            reply_to: replyTo,
+            from: recipient(from),
+            reply_to: replyTo? recipient(replyTo): undefined,
             content: [],
             template_id: templateID,
             sections,
@@ -101,7 +101,7 @@ export class Mail {
             body.content.push({type: 'text/html', value: html});
         }
 
-        if (attachments) {
+        if (attachments && attachments.length > 0) {
             body.attachments = attachments.map(({content, type, filename, disposition, contentID}) => {
                 return {
                     content: Buffer.from(content).toString('base64'),
@@ -115,4 +115,8 @@ export class Mail {
 
         return this.client.call(POST, 'mail/send', {body});
     }
+}
+
+function recipient({email, name}) {
+    return {email, name};
 }
