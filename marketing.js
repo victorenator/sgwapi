@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Markering = void 0;
+exports.Marketing = void 0;
 
 var _assert = _interopRequireDefault(require("assert"));
 
@@ -613,7 +613,7 @@ class NewsletterSchedule {
  */
 
 
-class Markering {
+class Marketing {
   /**
    * @constructor
    * @param {String} key auth
@@ -783,4 +783,4 @@ class Markering {
 
 }
 
-exports.Markering = Markering;
+exports.Marketing = Marketing;

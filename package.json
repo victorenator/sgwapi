@@ -1,6 +1,6 @@
 {
     "name": "sgwapi",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Sendgrid Web API",
     "homepage": "https://github.com/victorenator/sgwapi",
     "author": {

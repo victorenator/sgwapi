@@ -436,7 +436,7 @@ class NewsletterSchedule {
  * @private
  * Sendgrid Newsletter API
  */
-export class Markering {
+export class Marketing {
 
     /**
      * @constructor
