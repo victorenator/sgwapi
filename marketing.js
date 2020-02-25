@@ -7,7 +7,7 @@ exports.Marketing = void 0;
 
 var _assert = _interopRequireDefault(require("assert"));
 
-var _client = require("./client");
+var _client = require("./client.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 

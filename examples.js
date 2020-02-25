@@ -1,9 +1,9 @@
 #!/usr/bin/env -S node --experimental-modules
 "use strict";
 
-var _suppressions = require("./suppressions");
+var _suppressions = require("./suppressions.js");
 
-var _mail = require("./mail");
+var _mail = require("./mail.js");
 
 if (process.argv.length < 3) {
   console.log('Usage: DEBUG=sgwapi %s %s <key>', process.argv[0], process.argv[1]);

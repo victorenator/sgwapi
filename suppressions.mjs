@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {DELETE, GET, Client} from './client';
+import {DELETE, GET, Client} from './client.mjs';
 
 /**
  * This endpoint allows you to retrieve and delete entries in the Blocks list.

@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {POST, Client} from './client';
+import {POST, Client} from './client.mjs';
 
 /**
  * @private

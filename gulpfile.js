@@ -10,7 +10,10 @@ function lintJS() {
 function compile() {
     return src('*.mjs')
         .pipe(babel({
-            plugins: ['@babel/plugin-transform-modules-commonjs']
+            plugins: [
+                ['babel-plugin-add-import-extension', {replace: true}],
+                '@babel/plugin-transform-modules-commonjs'
+            ]
         }))
         .pipe(dest('.'));
 }
