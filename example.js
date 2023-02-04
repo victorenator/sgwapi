@@ -1,7 +1,7 @@
-#!/usr/bin/env -S node --experimental-modules
+#!/usr/bin/env -S node
 
-import {Suppressions} from './suppressions.mjs';
-import {Mail} from './mail.mjs';
+import {Suppressions} from './suppressions.js';
+import {Mail} from './mail.js';
 
 if (process.argv.length < 3) {
     console.log('Usage: DEBUG=sgwapi %s %s <key>', process.argv[0], process.argv[1]);
